@@ -1,0 +1,90 @@
+apply plugin: 'com.android.application'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:design:23.1.1'
+}
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        applicationId "com.tomaszrykala.genymotion_productflavors"
+        minSdkVersion 18
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    productFlavors {
+        dev; // for dev smoke tests
+        sdk18; sdk19; sdk21; // all api levels tests
+    }
+
+    variantFilter { variant ->
+        def names = variant.flavors*.name
+        if (names.contains('sdk') && variant.buildType.name == 'release') {
+            variant.ignore = true
+        }
+    }
+}
+
+apply plugin: 'genymotion'
+
+genymotion {
+    devices {
+
+        // API 18
+        "Google Nexus 4 - 4.3 - API 18 - 768x1280" {
+            productFlavors "sdk18"
+        }
+        "Google Nexus 7 - 4.3 - API 18 - 800x1280" {
+            productFlavors "sdk18"
+        }
+
+        // API 19
+        "Google Nexus 4 - 4.4.4 - API 19 - 768x1280" {
+            productFlavors "sdk19"
+        }
+        "Google Nexus 7 - 4.4.4 - API 19 - 800x1280" {
+            productFlavors "sdk19"
+        }
+        "Google Nexus 5 - 4.4.4 - API 19 - 1080x1920" {
+            productFlavors "sdk19"
+        }
+
+        // API 21
+        "Google Nexus 4 - 5.0.0 - API 21 - 768x1280" {
+            productFlavors "sdk21", "dev"
+        }
+        "Google Nexus 7 - 5.0.0 - API 21 - 800x1280" {
+            productFlavors "sdk21", "dev"
+        }
+        "Google Nexus 5 - 5.0.0 - API 21 - 1080x1920" {
+            productFlavors "sdk21", "dev"
+        }
+
+    }.each {
+        it.template String.valueOf(it) // which template to use
+        it.deleteWhenFinish false // keep the device after test
+
+        // any other common device config items
+    }
+}
+
+task allConnectedAndroidTests(type: GradleBuild) {
+    tasks = [
+            'connectedSdk18DebugAndroidTest',
+            'connectedSdk19DebugAndroidTest',
+            'connectedSdk21DebugAndroidTest'
+    ]
+}
