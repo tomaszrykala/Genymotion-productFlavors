@@ -26,14 +26,19 @@ android {
     }
 
     productFlavors {
-        dev; // for dev smoke tests
-        sdk18; sdk19; sdk21; // all api levels tests
+        dev; // dev/smoke tests
+        api18; api19; api21; // all api levels tests
     }
 
     variantFilter { variant ->
         def names = variant.flavors*.name
-        if (names.contains('sdk') && variant.buildType.name == 'release') {
-            variant.ignore = true
+        if (variant.buildType.name == "release") {
+            names.each {
+                if (it.startsWith("api")) {
+                    variant.ignore = true
+                    return;
+                }
+            }
         }
     }
 }
@@ -45,32 +50,32 @@ genymotion {
 
         // API 18
         "Google Nexus 4 - 4.3 - API 18 - 768x1280" {
-            productFlavors "sdk18"
+            productFlavors "api18"
         }
         "Google Nexus 7 - 4.3 - API 18 - 800x1280" {
-            productFlavors "sdk18"
+            productFlavors "api18"
         }
 
         // API 19
         "Google Nexus 4 - 4.4.4 - API 19 - 768x1280" {
-            productFlavors "sdk19"
+            productFlavors "api19"
         }
         "Google Nexus 7 - 4.4.4 - API 19 - 800x1280" {
-            productFlavors "sdk19"
+            productFlavors "api19"
         }
         "Google Nexus 5 - 4.4.4 - API 19 - 1080x1920" {
-            productFlavors "sdk19"
+            productFlavors "api19"
         }
 
         // API 21
         "Google Nexus 4 - 5.0.0 - API 21 - 768x1280" {
-            productFlavors "sdk21", "dev"
+            productFlavors "api21", "dev"
         }
         "Google Nexus 7 - 5.0.0 - API 21 - 800x1280" {
-            productFlavors "sdk21", "dev"
+            productFlavors "api21", "dev"
         }
         "Google Nexus 5 - 5.0.0 - API 21 - 1080x1920" {
-            productFlavors "sdk21", "dev"
+            productFlavors "api21", "dev"
         }
 
     }.each {
@@ -83,8 +88,8 @@ genymotion {
 
 task allConnectedAndroidTests(type: GradleBuild) {
     tasks = [
-            'connectedSdk18DebugAndroidTest',
-            'connectedSdk19DebugAndroidTest',
-            'connectedSdk21DebugAndroidTest'
+            'connectedApi18DebugAndroidTest',
+            'connectedApi19DebugAndroidTest',
+            'connectedApi21DebugAndroidTest'
     ]
 }
